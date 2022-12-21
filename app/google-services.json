@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "659676659037",
+    "project_id": "live-database-video-player",
+    "storage_bucket": "live-database-video-player.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659676659037:android:42642d0ec854ade63fbcb4",
+        "android_client_info": {
+          "package_name": "com.example.videouploader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659676659037-cnf8ktg2h6vndk2dhfr4lc2n6u8o09qk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgbD4Oi-nm_zAdosox8R8Gc17UXLEUvQY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659676659037-cnf8ktg2h6vndk2dhfr4lc2n6u8o09qk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
