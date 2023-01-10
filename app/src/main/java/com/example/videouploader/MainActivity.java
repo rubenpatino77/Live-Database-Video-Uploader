@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SelectListener {
     private StorageReference mStorageRef;
 
     RecyclerView recyclerView;
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
          recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
          allFiles = new ArrayList<>();
          allFiles.addAll(findVideos(path));
-         customAdapter = new CustomAdapter(this, allFiles);
+         customAdapter = new CustomAdapter(this, allFiles, this);
          customAdapter.setHasStableIds(true);
          recyclerView.setAdapter(customAdapter);
     }
@@ -92,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return myVideos;
+    }
+
+    @Override
+    public void onFileClick(File file) {
+
     }
 
 
