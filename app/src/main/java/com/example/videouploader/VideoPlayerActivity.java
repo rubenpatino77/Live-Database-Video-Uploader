@@ -2,16 +2,12 @@ package com.example.videouploader;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.media.browse.MediaBrowser;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -23,26 +19,13 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
-
-import java.io.File;
 
 public class VideoPlayerActivity extends AppCompatActivity {
-    /*
-    View player;
-    String filePath;
-    SimpleExoPlayer videoPlayer;
-*/
 
-    // creating a variable for exoplayerview.
+    // creating a variable for exoplayerView.
     SimpleExoPlayerView exoPlayerView;
 
     // creating a variable for exoplayer
@@ -65,14 +48,6 @@ public class VideoPlayerActivity extends AppCompatActivity {
         videoURL = getIntent().getStringExtra("VIDEO");
         //Uri videoUri = Uri.parse(videoURL);
 
-
-
-
-
-
-
-
-
         try {
 
             // url of video which we are loading.
@@ -91,7 +66,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
             // we are parsing a video url
             // and parsing its video uri.
-            Uri videouri = Uri.parse(videoURL);
+            Uri videoUri = Uri.parse(videoURL);
 
             // we are creating a variable for datasource factory
             // and setting its user agent as 'exoplayer_view'
@@ -104,7 +79,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
             // we are creating a media source with above variables
             // and passing our event handler as null,
-            MediaSource mediaSource = new ExtractorMediaSource(videouri, dataSourceFactory, extractorsFactory, null, null);
+            MediaSource mediaSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory, null, null);
 
             // inside our exoplayer view
             // we are setting our player

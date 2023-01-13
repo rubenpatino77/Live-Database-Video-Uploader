@@ -54,7 +54,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getPath()), mSize, ca);
+                thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
             }
         } catch (IOException e) {
             e.printStackTrace();
