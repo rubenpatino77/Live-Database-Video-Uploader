@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.util.Size;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -18,10 +17,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
-    private Context context;
+    private static final Logger logger = Logger.getLogger("idk");
+
+    private final Context context;
     private List<File> fileList;
     private SelectListener listener;
 
@@ -54,7 +56,12 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
+                try {
+                    thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
+                } catch (Error e){
+                    logger.info("\"createVideoThumbnail\" will use default starting image as thumbnail");
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,12 +69,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
         holder.imgThumbnail.setImageBitmap(thumb);
 
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                 listener.onFileClick(fileList.get(position));
-            }
-        });
+        holder.cardView.setOnClickListener(view -> listener.onFileClick(fileList.get(position), holder.txtName.getText().toString()));
     }
 
     @Override

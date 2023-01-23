@@ -19,11 +19,11 @@
             android:layout_marginTop="10dp">
 
             <ImageView
+                android:id="@+id/video_back"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:padding="10dp"
-                android:src="@drawable/ic_back_arrow"
-                android:id="@+id/video_back"/>
+                android:src="@drawable/ic_back_arrow" />
 
             <TextView
                 android:id="@+id/video_title"
@@ -34,14 +34,7 @@
                 android:maxLines="2"
                 android:text="This is the title of the video"
                 android:textColor="@color/white"
-                android:textSize="18sp"/>
-
-            <ImageView
-                android:id="@+id/video_list"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_play_playlist"/>
+                android:textSize="18sp" />
 
             <ImageView
                 android:id="@+id/video_more"
@@ -75,8 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:text="4444"
+                android:layout_marginEnd="10dp"
                 android:textColor="@color/white" />
             
             <com.google.android.exoplayer2.ui.DefaultTimeBar
@@ -112,7 +104,7 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_rew"
+                android:id="@+id/rewind"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
@@ -121,7 +113,7 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_prev"
+                android:id="@+id/prev_button"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
@@ -130,7 +122,7 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_play"
+                android:id="@+id/play_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
@@ -139,7 +131,7 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_pause"
+                android:id="@+id/pause_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
@@ -148,7 +140,7 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_next"
+                android:id="@+id/next_button"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
@@ -157,20 +149,11 @@
             </ImageView>
 
             <ImageView
-                android:id="@+id/exo_ffwd"
+                android:id="@+id/fast_fwd"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="1"
                 android:src="@drawable/ic_fast_forward_5">
-
-            </ImageView>
-
-            <ImageView
-                android:id="@+id/scaling"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_weight="1"
-                android:src="@drawable/ic_fit">
 
             </ImageView>
 

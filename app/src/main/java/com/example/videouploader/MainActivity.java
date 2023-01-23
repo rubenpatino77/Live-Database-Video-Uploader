@@ -91,9 +91,17 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     }
 
     @Override
-    public void onFileClick(File file) {
-        startActivity(new Intent(MainActivity.this, VideoPlayerActivity.class)
-        .putExtra("VIDEO", file.getAbsolutePath()));
+    public void onFileClick(File file, String videoName) {
+        Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
+
+        Bundle extras = new Bundle();
+        extras.putString("VIDEO", file.getAbsolutePath());
+        extras.putString("videoName", videoName);
+        intent.putExtras(extras);
+
+        startActivity(intent);
+
+
     }
 
 }
