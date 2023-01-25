@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Video Uploader</string>
+    <string name="upload_to_database">Upload to Database</string>
 </resources>

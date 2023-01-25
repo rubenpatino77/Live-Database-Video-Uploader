@@ -36,6 +36,14 @@
             android:marqueeRepeatLimit="marquee_forever">
 
         </TextView>
+
+        <Button
+            android:id="@+id/uploadButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/upload_to_database">
+
+        </Button>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
