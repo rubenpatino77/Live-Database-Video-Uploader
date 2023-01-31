@@ -7,6 +7,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.os.Environment;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +19,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
     private final Context context;
     private List<File> fileList;
     private SelectListener listener;
+    private String tempDir = Objects.requireNonNull(System.getenv("EXTERNAL_STORAGE")) + "/"
+            + Environment.DIRECTORY_DOWNLOADS + "/tempDir";
 
     public CustomAdapter(Context context, List<File> fileList, SelectListener listener) {
         this.context = context;
@@ -39,18 +43,28 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
+        Size mSize;
+        CancellationSignal ca = new CancellationSignal();
+        Bitmap thumb = null;
+
         holder.txtName.setText(fileList.get(position).getName());
         holder.txtName.setSelected(true);
 
-        MediaMetadataRetriever dataRetriever = new MediaMetadataRetriever();
-        dataRetriever.setDataSource(fileList.get(position).getPath());
-        String width =
-                dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        String height =
-                dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        Size mSize = new Size(Integer.parseInt(width), Integer.parseInt(height));
-        CancellationSignal ca = new CancellationSignal();
-        Bitmap thumb = null;
+        String filePath = fileList.get(position).getPath();
+        if(!filePath.startsWith(tempDir)) {
+            MediaMetadataRetriever dataRetriever = new MediaMetadataRetriever();
+
+            dataRetriever.setDataSource(filePath);
+            String width =
+                    dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            String height =
+                    dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            mSize = new Size(Integer.parseInt(width), Integer.parseInt(height));
+        } else {
+            mSize = new Size(50,50);
+        }
+
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -71,7 +85,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         holder.uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onButtonClick(fileList.get(position), holder.txtName.getText().toString());
+                listener.onUploadClick(fileList.get(position));
             }
         });
     }

@@ -26,14 +26,29 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_view">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view">
 
+        </androidx.recyclerview.widget.RecyclerView>
 
+        <Button
+            android:id="@+id/getPhotosButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get uploaded photos"
+            android:layout_centerHorizontal="true"
+            android:layout_alignBottom="@+id/recycler_view"
+            android:layout_marginBottom="15dp">
+
+        </Button>
+
+    </RelativeLayout>
 
 
 
