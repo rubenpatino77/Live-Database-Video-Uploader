@@ -30,6 +30,9 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     File localPath = new File(Objects.requireNonNull(System.getenv("EXTERNAL_STORAGE")));
     CustomAdapter customAdapter;
     Button getPhotosButton;
-    File tempDir = new File(localPath.getPath() + "/" + Environment.DIRECTORY_DOWNLOADS + "/tempDir");
+    File tempDir = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/tempDir");
     boolean videosDownloaded = false;
 
 
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
             }
         });
 
-        if(tempDir.exists()){
+        if(tempDir.getAbsoluteFile().exists()){
             deleteDirectory(tempDir);
         }
         
@@ -156,6 +159,30 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         });
     }
 
+    @Override
+    public void onDownloadClick(File file) {
+        Path moveToDownloads = null;
+        File downloads = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/VU_Videos");
+        if(!downloads.exists()){
+            downloads.mkdirs();
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            try {
+                moveToDownloads = Files.move(file.toPath(), new File(downloads.toPath() + "/" + file.getName()).toPath());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(moveToDownloads != null){
+            Toast.makeText(MainActivity.this, "File is now in \"downloads\" directory", Toast.LENGTH_LONG).show();
+            customAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(MainActivity.this, "Failed to download file", Toast.LENGTH_LONG).show();
+        }
+    }
+
     public void getPhotos() {
         StorageReference downloadFrom = storageRef.child("VideoUploaderVideos");
 
@@ -163,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                 .addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
                     public void onSuccess(ListResult listResult) {
+                        if (!tempDir.exists()) {
+                            tempDir.mkdirs();
+                        }
 
                         Toast.makeText(MainActivity.this, "Successfully entered database. Now getting file.", Toast.LENGTH_LONG).show();
 
@@ -207,10 +237,10 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
             if (subfile.isDirectory()) {
                 deleteDirectory(subfile);
             }
-
             // delete files and empty subfolders
             subfile.delete();
         }
+        file.delete();
     }
 
 }

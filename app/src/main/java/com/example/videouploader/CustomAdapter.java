@@ -3,6 +3,7 @@ package com.example.videouploader;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.media.ThumbnailUtils;
 import android.os.Build;
@@ -63,8 +64,12 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             mSize = new Size(Integer.parseInt(width), Integer.parseInt(height));
         } else {
             mSize = new Size(50,50);
+            holder.uploadButton.setBackgroundColor(Color.parseColor("#004999"));
+            holder.uploadButton.setText("Download to local files");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                holder.cardView.setOutlineSpotShadowColor(Color.parseColor("#004999"));
+            }
         }
-
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -82,12 +87,21 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             listener.onFileClick(fileList.get(position), holder.txtName.getText().toString());
         });
 
-        holder.uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onUploadClick(fileList.get(position));
-            }
-        });
+        if(!filePath.startsWith(tempDir)) {
+            holder.uploadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onUploadClick(fileList.get(position));
+                }
+            });
+        } else {
+            holder.uploadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onDownloadClick(fileList.get(position));
+                }
+            });
+        }
     }
 
     @Override

@@ -41,10 +41,11 @@
             android:id="@+id/getPhotosButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Get uploaded photos"
-            android:layout_centerHorizontal="true"
             android:layout_alignBottom="@+id/recycler_view"
-            android:layout_marginBottom="15dp">
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="15dp"
+            android:text="Get uploaded photos"
+            android:backgroundTint="#004999">
 
         </Button>
 
