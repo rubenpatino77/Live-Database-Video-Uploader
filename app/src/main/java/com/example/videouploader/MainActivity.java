@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SelectListener {
 
@@ -43,11 +42,10 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
     RecyclerView recyclerView;
     List<File> allFiles;
-    File localPath = new File(Objects.requireNonNull(System.getenv("EXTERNAL_STORAGE")));
     CustomAdapter customAdapter;
     Button getPhotosButton;
-    File tempDir = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/tempDir");
-    boolean videosDownloaded = false;
+    File localPath = directoryService.localPath;
+    File tempDir = directoryService.tempDir;
 
 
     @Override
@@ -61,17 +59,15 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
             @Override
             public void onClick(View view) {
                 getPhotos();
-                videosDownloaded = true;
                 getPhotosButton.setClickable(false);
             }
         });
 
         if(tempDir.getAbsoluteFile().exists()){
-            deleteDirectory(tempDir);
+            directoryService.deleteDirectory(tempDir);
         }
         
         askPermission();
-
     }
 
     private void askPermission() {
@@ -162,13 +158,13 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     @Override
     public void onDownloadClick(File file) {
         Path moveToDownloads = null;
-        File downloads = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/VU_Videos");
-        if(!downloads.exists()){
-            downloads.mkdirs();
+        File downloadedFiles = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/VU_Videos");
+        if(!downloadedFiles.exists()){
+            downloadedFiles.mkdirs();
         }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             try {
-                moveToDownloads = Files.move(file.toPath(), new File(downloads.toPath() + "/" + file.getName()).toPath());
+                moveToDownloads = Files.move(file.toPath(), new File(downloadedFiles.toPath() + "/" + file.getName()).toPath());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -176,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         }
 
         if(moveToDownloads != null){
-            Toast.makeText(MainActivity.this, "File is now in \"downloads\" directory", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "File is now in " + downloadedFiles.getAbsolutePath() +" directory", Toast.LENGTH_LONG).show();
             customAdapter.notifyDataSetChanged();
         } else {
             Toast.makeText(MainActivity.this, "Failed to download file", Toast.LENGTH_LONG).show();
@@ -184,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     }
 
     public void getPhotos() {
+        Intent dirService = new Intent(this, directoryService.class);
+        startService(dirService);
+
         StorageReference downloadFrom = storageRef.child("VideoUploaderVideos");
 
         downloadFrom.listAll()
@@ -226,21 +225,6 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                         Toast.makeText(MainActivity.this, "Failed accessing database.", Toast.LENGTH_LONG).show();
                     }
                 });
-    }
-
-    public static void deleteDirectory(File file)
-    {
-        // store all the paths of files and folders present inside directory
-        for (File subfile : file.listFiles()) {
-
-            // if it is a subfolder, recursively call function to empty subfolder
-            if (subfile.isDirectory()) {
-                deleteDirectory(subfile);
-            }
-            // delete files and empty subfolders
-            subfile.delete();
-        }
-        file.delete();
     }
 
 }
