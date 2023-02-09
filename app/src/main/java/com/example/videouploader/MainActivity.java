@@ -3,25 +3,18 @@ package com.example.videouploader;
 
 import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -39,13 +32,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements SelectListener {
 
     private StorageReference storageRef;
-
     RecyclerView recyclerView;
     List<File> allFiles;
     CustomAdapter customAdapter;
     Button getPhotosButton;
-    File localPath = directoryService.localPath;
-    File tempDir = directoryService.tempDir;
+    private File localPath = directoryService.localPath;
+    private File tempDir = directoryService.tempDir;
 
 
     @Override
@@ -70,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         askPermission();
     }
 
+
     private void askPermission() {
         Dexter.withContext(this).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
@@ -90,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                 }).check();
     }
 
+
     private void displayFiles() {
          recyclerView = findViewById(R.id.recycler_view);
          recyclerView.setHasFixedSize(true);
@@ -100,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
          customAdapter.setHasStableIds(true);
          recyclerView.setAdapter(customAdapter);
     }
+
 
     private List<File> findVideos(File allFilesPath){
         ArrayList<File> myVideos = new ArrayList<>();
@@ -118,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         return myVideos;
     }
 
+
     @Override
     public void onFileClick(File file, String videoName) {
         Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
@@ -128,35 +124,18 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         intent.putExtras(extras);
 
         startActivity(intent);
-
-
     }
+
 
     @Override
     public void onUploadClick(File file) {
-
-        Uri uri = Uri.fromFile(file);
-        StorageReference uploadLocation = storageRef.child("VideoUploaderVideos").child(uri.getLastPathSegment());
-        UploadTask uploadTask = uploadLocation.putFile(uri);
-
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Toast.makeText(MainActivity.this, "Failed to access database", Toast.LENGTH_LONG).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                Toast.makeText(MainActivity.this, "Successfully entered database", Toast.LENGTH_LONG).show();
-            }
-        });
+        databaseHandler.uploadFileToDb(this, file,storageRef);
     }
+
 
     @Override
     public void onDownloadClick(File file) {
+        //Move file from temporary directory to 'SDCard/Downloads/VU_Videos'
         Path moveToDownloads = null;
         File downloadedFiles = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/VU_Videos");
         if(!downloadedFiles.exists()){
@@ -179,52 +158,9 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         }
     }
 
+
     public void getPhotos() {
-        Intent dirService = new Intent(this, directoryService.class);
-        startService(dirService);
-
-        StorageReference downloadFrom = storageRef.child("VideoUploaderVideos");
-
-        downloadFrom.listAll()
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                    @Override
-                    public void onSuccess(ListResult listResult) {
-                        if (!tempDir.exists()) {
-                            tempDir.mkdirs();
-                        }
-
-                        Toast.makeText(MainActivity.this, "Successfully entered database. Now getting file.", Toast.LENGTH_LONG).show();
-
-                        for (StorageReference item : listResult.getItems()) {
-                            String name = item.getName();
-                            File tempFile = new File(tempDir.getPath() + "/" + name);
-                            StorageReference videoInStorage = downloadFrom.child(name);
-
-                            videoInStorage.getFile(tempFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(MainActivity.this, "Success in getting file", Toast.LENGTH_LONG).show();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(MainActivity.this, "Failed getting file", Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                            allFiles.add(tempFile);
-                            customAdapter.notifyItemInserted(allFiles.size() - 1);
-                        }
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred!
-                        Toast.makeText(MainActivity.this, "Failed accessing database.", Toast.LENGTH_LONG).show();
-                    }
-                });
+        //Downloads videos to 'SDCard/Downloads/tempDir', a temporary directory
+        databaseHandler.retrieveVideosFromDb(this, allFiles, customAdapter, storageRef);
     }
-
 }

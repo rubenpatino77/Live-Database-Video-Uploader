@@ -1,8 +1,5 @@
 package com.example.videouploader;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,6 +11,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -243,6 +243,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //NOTHING FOR RIGHT NOW
+                Toast.makeText(getApplicationContext(), "Options button Pressed.", Toast.LENGTH_SHORT).show();
             }
         });
     }

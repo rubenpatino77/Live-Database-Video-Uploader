@@ -16,17 +16,20 @@ public class directoryService extends Service {
     static File localPath = new File(Objects.requireNonNull(System.getenv("EXTERNAL_STORAGE")));
     static File tempDir = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/tempDir");
 
+
     @Override
     public void onCreate() {
         super.onCreate();
         Toast.makeText(getApplicationContext(), "Service created and started.", Toast.LENGTH_SHORT).show();
     }
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
@@ -45,6 +48,7 @@ public class directoryService extends Service {
         Toast.makeText(getApplicationContext(), "exist:" + exist + "\ndelete:" + delete, Toast.LENGTH_SHORT).show();
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -53,6 +57,7 @@ public class directoryService extends Service {
 
         stopSelf();
     }
+
 
     public static boolean deleteDirectory(File file)
     {
