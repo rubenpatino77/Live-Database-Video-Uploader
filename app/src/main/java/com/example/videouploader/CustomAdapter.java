@@ -53,17 +53,26 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         holder.txtName.setSelected(true);
 
         String filePath = fileList.get(position).getPath();
-        if(!filePath.startsWith(tempDir)) {
-            MediaMetadataRetriever dataRetriever = new MediaMetadataRetriever();
 
-            dataRetriever.setDataSource(filePath);
-            String width =
-                    dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-            String height =
-                    dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-            mSize = new Size(Integer.parseInt(width), Integer.parseInt(height));
-        } else {
-            mSize = new Size(50,50);
+        MediaMetadataRetriever dataRetriever = new MediaMetadataRetriever();
+
+        File checkFile = new File(filePath);
+        while (!checkFile.exists()){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        dataRetriever.setDataSource(filePath);
+        String width =
+                dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+        String height =
+                dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+        mSize = new Size(Integer.parseInt(width), Integer.parseInt(height));
+
+        if(filePath.startsWith(tempDir)) {
             holder.uploadButton.setBackgroundColor(Color.parseColor("#004999"));
             holder.uploadButton.setText("Download to local files");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -74,8 +83,6 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
-
-
             }
         } catch (IOException e) {
             e.printStackTrace();

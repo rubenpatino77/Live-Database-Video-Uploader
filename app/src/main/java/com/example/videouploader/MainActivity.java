@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         getPhotosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getPhotos();
+                getDbVideos();
                 getPhotosButton.setClickable(false);
             }
         });
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     }
 
 
-    public void getPhotos() {
+    public void getDbVideos() {
         //Downloads videos to 'SDCard/Downloads/tempDir', a temporary directory
         databaseHandler.retrieveVideosFromDb(this, allFiles, customAdapter, storageRef);
     }

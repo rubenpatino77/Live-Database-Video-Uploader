@@ -1,8 +1,10 @@
 package com.example.videouploader;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -11,22 +13,35 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public final class databaseHandler {
 
     private final static File tempDir = directoryService.tempDir;
     private final static String DB_DIRECTORY_NAME = "VideoUploaderVideos";
+    private static StorageReference currentItem = null;
+    private static Context currentContext = null;
+    private static StorageReference downloadFrom = null;
+
 
     public static void retrieveVideosFromDb(Context context, List<File> allFiles,CustomAdapter customAdapter, StorageReference storageRef){
         Intent dirService = new Intent(context, directoryService.class);
         context.startService(dirService);
+        currentContext = context;
 
-        StorageReference downloadFrom = storageRef.child(DB_DIRECTORY_NAME);
+        downloadFrom = storageRef.child(DB_DIRECTORY_NAME);
 
         downloadFrom.listAll()
                 .addOnSuccessListener(new OnSuccessListener<ListResult>() {
@@ -39,26 +54,28 @@ public final class databaseHandler {
                         Toast.makeText(context, "Successfully entered database. Now getting file.", Toast.LENGTH_LONG).show();
 
                         for (StorageReference item : listResult.getItems()) {
+                            currentItem = item;
                             String name = item.getName();
                             File tempFile = new File(tempDir.getPath() + "/" + name);
-                            StorageReference videoInStorage = downloadFrom.child(name);
+
+                            StorageReference videoInStorage = downloadFrom.child(currentItem.getName());
 
                             videoInStorage.getFile(tempFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(context, "Success in getting file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(currentContext, "Success in getting file", Toast.LENGTH_LONG).show();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(context, "Failed getting file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(currentContext, "Failed getting file", Toast.LENGTH_LONG).show();
                                 }
                             });
+
 
                             allFiles.add(tempFile);
                             customAdapter.notifyItemInserted(allFiles.size() - 1);
                         }
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -90,5 +107,15 @@ public final class databaseHandler {
                 Toast.makeText(context, "Successfully entered database", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    static class waitForVideo implements Callable<File>{
+
+        @Override
+        public File call() throws Exception {
+
+
+            return null;
+        }
     }
 }
