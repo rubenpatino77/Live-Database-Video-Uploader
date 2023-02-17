@@ -47,8 +47,16 @@ public final class databaseHandler {
 
         downloadFrom = storageRef.child(DB_DIRECTORY_NAME);
 
-        downloadFrom.listAll()
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+        Task<ListResult> done = downloadFrom.listAll();
+
+        while (!done.isComplete()){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        done.addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
                     public void onSuccess(ListResult listResult) {
                         if (!tempDir.exists()) {

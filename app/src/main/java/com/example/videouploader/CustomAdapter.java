@@ -60,7 +60,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         File checkFile = new File(filePath);
         while (!checkFile.exists()){
             try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -69,6 +69,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         try {
             dataRetriever.setDataSource(filePath);
         } catch (Error e){
+            e.printStackTrace();
             Toast.makeText(context, "Error: " + e.toString(), Toast.LENGTH_LONG).show();
         }
 

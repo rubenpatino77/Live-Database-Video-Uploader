@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.20833333333333334" />
         <entry key="app/src/main/res/layout/activity_video_player.xml" value="0.20425724637681159" />
         <entry key="app/src/main/res/layout/custom_list.xml" value="0.16770833333333332" />
+        <entry key="app/src/main/res/layout/custom_loading_dialogue.xml" value="0.2" />
         <entry key="app/src/main/res/layout/custom_playback_view.xml" value="0.20425724637681159" />
       </map>
     </option>

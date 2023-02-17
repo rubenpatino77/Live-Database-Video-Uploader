@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     private final File localPath = directoryService.localPath;
     private final File tempDir = directoryService.tempDir;
     private HashMap<String, String> dbFileNames = new HashMap<>();
+    private LoadingDialogue loadingDialogue;
 
 
     @Override
@@ -49,12 +50,15 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         storageRef = FirebaseStorage.getInstance().getReference();
         getPhotosButton = findViewById(R.id.getPhotosButton);
         dbFileNames = databaseHandler.getDbFileNames(this, storageRef);
+        loadingDialogue = new LoadingDialogue(MainActivity.this);
 
         getPhotosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadingDialogue.startLoadingDialogue();
                 getDbVideos();
                 getPhotosButton.setClickable(false);
+                loadingDialogue.dismissLoadingDialogue();
             }
         });
 
@@ -131,18 +135,24 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
     @Override
     public void onUploadClick(File file) {
+        loadingDialogue.startLoadingDialogue();
+
         if(!dbFileNames.containsKey(file.getName())){
             databaseHandler.uploadFileToDb(getBaseContext(), file, storageRef);
             dbFileNames = databaseHandler.getDbFileNames(this, storageRef);
+            //TODO: IF(db files already retrieved){ Refresh adapter with new values organized}
         } else {
             Toast.makeText(getBaseContext(), "File Already exists in the database.", Toast.LENGTH_LONG).show();
         }
+        loadingDialogue.dismissLoadingDialogue();
     }
 
 
 
     @Override
     public void onDownloadClick(File file) {
+        loadingDialogue.startLoadingDialogue();
+
         //Move file from temporary directory to 'SDCard/Downloads/VU_Videos'
         Path fileMover = null;
         File downloadedFiles = new File(localPath + "/" + Environment.DIRECTORY_DOWNLOADS + "/VU_Videos");
@@ -160,10 +170,12 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
         if(fileMover != null){
             Toast.makeText(MainActivity.this, "File is now in " + downloadedFiles.getAbsolutePath() +" directory", Toast.LENGTH_LONG).show();
-            //TODO: Refresh adapter with new values organized..... OR.....
+            //TODO: Refresh adapter with new values organized
         } else {
             Toast.makeText(MainActivity.this, "Failed to download file", Toast.LENGTH_LONG).show();
         }
+
+        loadingDialogue.dismissLoadingDialogue();
     }
 
 
