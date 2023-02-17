@@ -13,6 +13,7 @@ import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,7 +66,12 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             }
         }
 
-        dataRetriever.setDataSource(filePath);
+        try {
+            dataRetriever.setDataSource(filePath);
+        } catch (Error e){
+            Toast.makeText(context, "Error: " + e.toString(), Toast.LENGTH_LONG).show();
+        }
+
         String width =
                 dataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         String height =
