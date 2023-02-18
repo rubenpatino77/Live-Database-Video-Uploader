@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -138,8 +139,14 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         loadingDialogue.startLoadingDialogue();
 
         if(!dbFileNames.containsKey(file.getName())){
-            databaseHandler.uploadFileToDb(getBaseContext(), file, storageRef);
-            dbFileNames = databaseHandler.getDbFileNames(this, storageRef);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    databaseHandler.uploadFileToDb(getBaseContext(), file, storageRef);
+                    dbFileNames = databaseHandler.getDbFileNames(MainActivity.this, storageRef);
+                }
+            }, 1000);
             //TODO: IF(db files already retrieved){ Refresh adapter with new values organized}
         } else {
             Toast.makeText(getBaseContext(), "File Already exists in the database.", Toast.LENGTH_LONG).show();

@@ -35,6 +35,6 @@ public class LoadingDialogue {
             public void run() {
                 dialogue.dismiss();
             }
-        }, 1000);
+        }, 1500);
     }
 }
