@@ -3,6 +3,7 @@ package com.example.videouploader;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -52,13 +53,15 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         getPhotosButton = findViewById(R.id.getPhotosButton);
         dbFileNames = databaseHandler.getDbFileNames(this, storageRef);
         loadingDialogue = new LoadingDialogue(MainActivity.this);
+        databaseHandler.setLoadingDialogue(loadingDialogue);
 
         getPhotosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 loadingDialogue.startLoadingDialogue();
-                getDbVideos();
                 getPhotosButton.setClickable(false);
+                getPhotosButton.setBackgroundColor(Color.RED);
+                getDbVideos();
                 loadingDialogue.dismissLoadingDialogue();
             }
         });
@@ -101,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
          customAdapter = new CustomAdapter(this, allFiles, this);
          customAdapter.setHasStableIds(true);
          recyclerView.setAdapter(customAdapter);
+         if(databaseHandler.isDbRetrieved()){
+             getDbVideos();
+         }
     }
 
 
@@ -143,15 +149,14 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    databaseHandler.uploadFileToDb(getBaseContext(), file, storageRef);
+                    databaseHandler.uploadFileToDb(getBaseContext(), file, storageRef, allFiles, customAdapter);
                     dbFileNames = databaseHandler.getDbFileNames(MainActivity.this, storageRef);
                 }
             }, 1000);
-            //TODO: IF(db files already retrieved){ Refresh adapter with new values organized}
         } else {
             Toast.makeText(getBaseContext(), "File Already exists in the database.", Toast.LENGTH_LONG).show();
+            loadingDialogue.dismissLoadingDialogue();
         }
-        loadingDialogue.dismissLoadingDialogue();
     }
 
 
@@ -176,8 +181,10 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         }
 
         if(fileMover != null){
+            directoryService.deleteDirectory(tempDir);
+            displayFiles();
+
             Toast.makeText(MainActivity.this, "File is now in " + downloadedFiles.getAbsolutePath() +" directory", Toast.LENGTH_LONG).show();
-            //TODO: Refresh adapter with new values organized
         } else {
             Toast.makeText(MainActivity.this, "Failed to download file", Toast.LENGTH_LONG).show();
         }

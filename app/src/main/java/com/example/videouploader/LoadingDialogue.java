@@ -2,12 +2,8 @@ package com.example.videouploader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Handler;
-import android.os.Trace;
 import android.view.LayoutInflater;
-
-import java.util.concurrent.CountDownLatch;
 
 public class LoadingDialogue {
     private Activity activity;

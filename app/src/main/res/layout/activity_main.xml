@@ -39,13 +39,13 @@
 
         <Button
             android:id="@+id/getPhotosButton"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/recycler_view"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"
-            android:text="Get uploaded photos"
-            android:backgroundTint="#004999">
+            android:backgroundTint="#004999"
+            android:text="Get uploaded photos">
 
         </Button>
 

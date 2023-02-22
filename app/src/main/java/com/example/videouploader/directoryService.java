@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -20,7 +19,6 @@ public class directoryService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Toast.makeText(getApplicationContext(), "Service created and started.", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -36,24 +34,19 @@ public class directoryService extends Service {
         super.onTaskRemoved(rootIntent);
 
         boolean exist = tempDir.exists();
-        boolean delete = false;
         if(exist){
             try {
-                delete = deleteDirectory(tempDir);
+                deleteDirectory(tempDir);
             } catch (Error e){
                 System.out.println(e);
             }
-
         }
-        Toast.makeText(getApplicationContext(), "exist:" + exist + "\ndelete:" + delete, Toast.LENGTH_SHORT).show();
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        Toast.makeText(getApplicationContext(), "Service now destroyed.", Toast.LENGTH_SHORT).show();
 
         stopSelf();
     }

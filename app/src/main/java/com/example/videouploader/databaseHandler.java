@@ -1,11 +1,8 @@
 package com.example.videouploader;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,22 +12,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public final class databaseHandler {
 
@@ -38,7 +25,12 @@ public final class databaseHandler {
     private final static String DB_DIRECTORY_NAME = "VideoUploaderVideos";
     private static Context currentContext = null;
     private static StorageReference downloadFrom = null;
+    private static boolean dbRetrieved = false;
+    private static LoadingDialogue loadingDialogue;
 
+    static void setLoadingDialogue(LoadingDialogue dialogue){
+        loadingDialogue = dialogue;
+    }
 
     public static void retrieveVideosFromDb(Context context, List<File> allFiles,CustomAdapter customAdapter, StorageReference storageRef){
         Intent dirService = new Intent(context, directoryService.class);
@@ -63,7 +55,7 @@ public final class databaseHandler {
                             tempDir.mkdirs();
                         }
 
-                        Toast.makeText(context, "Successfully entered database. Now getting file.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Successfully entered database. Now retrieving file.", Toast.LENGTH_LONG).show();
 
                         for (StorageReference item : listResult.getItems()) {
                             String name = item.getName();
@@ -74,12 +66,12 @@ public final class databaseHandler {
                             videoInStorage.getFile(tempFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(currentContext, "Success in getting file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(currentContext, "File retrieved.", Toast.LENGTH_SHORT).show();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(currentContext, "Failed getting file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(currentContext, "Failed retrieving file", Toast.LENGTH_LONG).show();
                                 }
                             });
 
@@ -87,6 +79,7 @@ public final class databaseHandler {
                             allFiles.add(tempFile);
                             customAdapter.notifyItemInserted(allFiles.size() - 1);
                         }
+                        dbRetrieved = true;
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -99,7 +92,7 @@ public final class databaseHandler {
     }
 
 
-    public static void uploadFileToDb(Context context, File file, StorageReference storageRef){
+    public static void uploadFileToDb(Context context, File file, StorageReference storageRef, List<File> allFiles, CustomAdapter customAdapter){
         Uri uri = Uri.fromFile(file);
         StorageReference uploadLocation = storageRef.child(DB_DIRECTORY_NAME).child(uri.getLastPathSegment());
         UploadTask uploadTask = uploadLocation.putFile(uri);
@@ -119,11 +112,35 @@ public final class databaseHandler {
                 // Handle unsuccessful uploads
                 Toast.makeText(context, "Failed to access database", Toast.LENGTH_LONG).show();
                 Toast.makeText(context, "Error: " + exception.toString(), Toast.LENGTH_LONG).show();
+                loadingDialogue.dismissLoadingDialogue();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                if(dbRetrieved){
+                    File newDbFile = new File(tempDir + "/" + file.getName());
+
+
+                    StorageReference videoInStorage = downloadFrom.child(file.getName());
+
+                    videoInStorage.getFile(newDbFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            allFiles.add(newDbFile);
+                            customAdapter.notifyItemInserted(allFiles.size() - 1);
+                            loadingDialogue.dismissLoadingDialogue();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(currentContext, "Failed getting file", Toast.LENGTH_LONG).show();
+                            loadingDialogue.dismissLoadingDialogue();
+                        }
+                    });
+                } else {
+                    loadingDialogue.dismissLoadingDialogue();
+                }
+
                 Toast.makeText(context, "Successfully uploaded video", Toast.LENGTH_LONG).show();
             }
         });
@@ -153,5 +170,9 @@ public final class databaseHandler {
                 });
 
         return map;
+    }
+
+    static boolean isDbRetrieved(){
+        return dbRetrieved;
     }
 }

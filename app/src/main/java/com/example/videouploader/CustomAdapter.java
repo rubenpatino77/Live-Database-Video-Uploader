@@ -117,7 +117,6 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             });
         }
     }
-
     @Override
     public int getItemCount() {
         return fileList.size();
