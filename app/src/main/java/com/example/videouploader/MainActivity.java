@@ -58,11 +58,24 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         getPhotosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadingDialogue.startLoadingDialogue();
-                getPhotosButton.setClickable(false);
-                getPhotosButton.setBackgroundColor(Color.RED);
-                getDbVideos();
-                loadingDialogue.dismissLoadingDialogue();
+                if(!databaseHandler.isDbRetrieved()){
+                    loadingDialogue.startLoadingDialogue();
+                    getPhotosButton.setBackgroundColor(Color.RED);
+                    getPhotosButton.setText("Remove database files.");
+                    getDbVideos();
+                    loadingDialogue.dismissLoadingDialogue();
+                } else {
+                    loadingDialogue.startLoadingDialogue();
+                    getPhotosButton.setBackgroundColor(Color.parseColor("#004999"));
+                    getPhotosButton.setText("Get uploaded photos");
+                    databaseHandler.resetDbRetrieved();
+                    if(tempDir.exists()){
+                        directoryService.deleteDirectory(tempDir);
+                    }
+                    displayFiles();
+                    loadingDialogue.dismissLoadingDialogue();
+                }
+
             }
         });
 

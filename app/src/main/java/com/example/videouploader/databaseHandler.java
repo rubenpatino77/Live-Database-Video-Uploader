@@ -175,4 +175,5 @@ public final class databaseHandler {
     static boolean isDbRetrieved(){
         return dbRetrieved;
     }
+    static void resetDbRetrieved(){ dbRetrieved = false; }
 }
