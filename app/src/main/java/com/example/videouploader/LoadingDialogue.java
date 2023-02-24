@@ -16,7 +16,6 @@ public class LoadingDialogue {
         LayoutInflater inflater = activity.getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.custom_loading_dialogue, null));
         dialogue = builder.create();
-
     }
 
     void startLoadingDialogue(){
@@ -31,6 +30,6 @@ public class LoadingDialogue {
             public void run() {
                 dialogue.dismiss();
             }
-        }, 1500);
+        }, 3000);
     }
 }

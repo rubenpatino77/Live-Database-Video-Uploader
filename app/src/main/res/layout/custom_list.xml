@@ -13,13 +13,29 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:id="@+id/imgThumbnail"
-            android:scaleType="centerCrop">
+            android:layout_height="wrap_content">
 
-        </ImageView>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:id="@+id/imgThumbnail"
+                android:scaleType="centerCrop">
+
+            </ImageView>
+
+            <ImageButton
+                android:id="@+id/delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_delete"
+                app:tint="#FF0000"
+                android:layout_alignRight="@id/imgThumbnail"
+                android:background="@null"
+                android:padding="5dp" />
+
+        </RelativeLayout>
 
         <TextView
             android:layout_width="match_parent"

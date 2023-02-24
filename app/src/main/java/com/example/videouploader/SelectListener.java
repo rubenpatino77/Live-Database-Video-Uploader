@@ -8,4 +8,6 @@ public interface SelectListener {
      void onUploadClick(File file);
 
      void onDownloadClick(File file);
+
+     void onDeleteClick(File file);
 }

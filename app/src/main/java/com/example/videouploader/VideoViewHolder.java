@@ -14,6 +14,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     public TextView txtName;
     public CardView cardView;
     public Button uploadButton;
+    public ImageView deleteButton;
 
     public VideoViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -21,5 +22,6 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         txtName = itemView.findViewById(R.id.txtName);
         cardView = itemView.findViewById(R.id.main_container);
         uploadButton = itemView.findViewById(R.id.uploadButton);
+        deleteButton = itemView.findViewById(R.id.delete_button);
     }
 }

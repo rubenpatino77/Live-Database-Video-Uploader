@@ -11,10 +11,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.karumi.dexter.Dexter;
@@ -109,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
 
     private void displayFiles() {
+        if(tempDir.getAbsoluteFile().exists()){
+            directoryService.deleteDirectory(tempDir);
+        }
          recyclerView = findViewById(R.id.recycler_view);
          recyclerView.setHasFixedSize(true);
          recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
@@ -203,6 +209,33 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         }
 
         loadingDialogue.dismissLoadingDialogue();
+    }
+
+    @Override
+    public void onDeleteClick(File file) {
+        loadingDialogue.startLoadingDialogue();
+        if(file.getAbsolutePath().startsWith(tempDir.getPath())){
+            StorageReference fileToDel = storageRef.child(databaseHandler.getDbDirectoryName()).child(file.getName());
+            fileToDel.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    file.delete();
+                    displayFiles();
+                    loadingDialogue.dismissLoadingDialogue();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    displayFiles();
+                    loadingDialogue.dismissLoadingDialogue();
+                }
+            });
+        } else {
+            file.delete();
+            displayFiles();
+            loadingDialogue.dismissLoadingDialogue();
+        }
+
     }
 
 

@@ -31,6 +31,9 @@ public final class databaseHandler {
     static void setLoadingDialogue(LoadingDialogue dialogue){
         loadingDialogue = dialogue;
     }
+    static String getDbDirectoryName(){
+        return DB_DIRECTORY_NAME;
+    }
 
     public static void retrieveVideosFromDb(Context context, List<File> allFiles,CustomAdapter customAdapter, StorageReference storageRef){
         Intent dirService = new Intent(context, directoryService.class);

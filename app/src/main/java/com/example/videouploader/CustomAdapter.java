@@ -60,7 +60,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         File checkFile = new File(filePath);
         while (!checkFile.exists()){
             try {
-                Thread.sleep(3000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -99,6 +99,13 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
         holder.cardView.setOnClickListener(view -> {
             listener.onFileClick(fileList.get(position), holder.txtName.getText().toString());
+        });
+
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onDeleteClick(fileList.get(position));
+            }
         });
 
         if(!filePath.startsWith(tempDir)) {
