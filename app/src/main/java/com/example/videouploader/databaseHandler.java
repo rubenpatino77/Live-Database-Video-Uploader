@@ -42,23 +42,21 @@ public final class databaseHandler {
 
         downloadFrom = storageRef.child(DB_DIRECTORY_NAME);
 
-        Task<ListResult> done = downloadFrom.listAll();
+        Task<ListResult> dbRetrieve = downloadFrom.listAll();
 
-        while (!done.isComplete()){
+        while (!dbRetrieve.isComplete()){
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        done.addOnSuccessListener(new OnSuccessListener<ListResult>() {
+        dbRetrieve.addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
                     public void onSuccess(ListResult listResult) {
                         if (!tempDir.exists()) {
                             tempDir.mkdirs();
                         }
-
-                        Toast.makeText(context, "Successfully entered database. Now retrieving file.", Toast.LENGTH_LONG).show();
 
                         for (StorageReference item : listResult.getItems()) {
                             String name = item.getName();
@@ -69,7 +67,7 @@ public final class databaseHandler {
                             videoInStorage.getFile(tempFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(currentContext, "File retrieved.", Toast.LENGTH_SHORT).show();
+
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override

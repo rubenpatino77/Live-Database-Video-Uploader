@@ -2,17 +2,35 @@ package com.example.videouploader;
 
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.RecoverableSecurityException;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.database.CharArrayBuffer;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,9 +47,12 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -214,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     @Override
     public void onDeleteClick(File file) {
         loadingDialogue.startLoadingDialogue();
+        boolean fake = false;
         if(file.getAbsolutePath().startsWith(tempDir.getPath())){
             StorageReference fileToDel = storageRef.child(databaseHandler.getDbDirectoryName()).child(file.getName());
             fileToDel.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -231,11 +253,90 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                 }
             });
         } else {
-            file.delete();
-            displayFiles();
+            //file uri != content uri
+            ///storage/emulated/0/Pictures/image_name.jpg // file uri
+            //content://media/external/image/media/114 // content uri
+
+            long mediaID=getFilePathToMediaID(file,  getApplicationContext());
+            Uri uri = ContentUris.withAppendedId( MediaStore.Video.Media.getContentUri("external"),mediaID);
+
+            try {
+                deleteAPI30(uri);
+            }catch (Exception e){
+                Toast.makeText(getApplicationContext(),"Permission needed", Toast.LENGTH_SHORT).show();
+                try {
+                    deleteAPI30(uri);
+                    file.delete();
+                    displayFiles();
+                    Toast.makeText(getApplicationContext(), "Image Deleted successfully", Toast.LENGTH_SHORT).show();
+                } catch (IntentSender.SendIntentException e1) {
+                    e1.printStackTrace();
+                }
+
+            } finally {
+                while (file.exists()){
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                displayFiles();
+            }
+
+
             loadingDialogue.dismissLoadingDialogue();
         }
 
+    }
+
+    public long getFilePathToMediaID(File file, Context context)
+    {
+        long id = 0;
+        ContentResolver cr = context.getContentResolver();
+
+        Uri uri = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            uri = MediaStore.Video.Media.getContentUri("external");
+        }
+
+        /*
+        String selection = MediaStore.Video.Media._ID; //sql-where-clause-with-placeholder-variables;
+        String[] selectionArgs = {new File(songPath).getName()}; //values-of-placeholder-variables
+        String[] projection = {MediaStore.Video.Media._ID}; //media-database-columns-to-retrieve
+        String sortOrder = MediaStore.Downloads.TITLE + " ASC"; //sql-order-by-clause;
+        */
+
+        Cursor cursor = cr.query(uri, null, null, null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int idIndex = cursor.getColumnIndex(MediaStore.Downloads._ID);
+                id = Long.parseLong(cursor.getString(idIndex));
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                String name = cursor.getString(nameIndex);
+                if(name.equals(file.getName())){
+                    break;
+                }
+            }
+        }
+
+        return id;
+    }
+
+    private void deleteAPI30(Uri imageUri) throws IntentSender.SendIntentException {
+        ContentResolver contentResolver = getContentResolver();
+        // API 30
+
+        List<Uri> uriList = new ArrayList<>();
+        Collections.addAll(uriList, imageUri);
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
+        }
+        ((Activity)this).startIntentSenderForResult(pendingIntent.getIntentSender(),
+                10,null,0,
+                0,0,null);
     }
 
 

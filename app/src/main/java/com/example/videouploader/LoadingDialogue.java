@@ -2,12 +2,13 @@ package com.example.videouploader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Handler;
 import android.view.LayoutInflater;
 
 public class LoadingDialogue {
     private Activity activity;
-    private AlertDialog dialogue;
+    private Dialog dialogue;
 
     LoadingDialogue(Activity myActivity){
         activity = myActivity;
