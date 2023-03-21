@@ -78,7 +78,6 @@ public final class databaseHandler {
 
 
                             allFiles.add(tempFile);
-                            customAdapter.notifyItemInserted(allFiles.size() - 1);
                         }
                         dbRetrieved = true;
                     }

@@ -141,12 +141,12 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
          recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
          allFiles = new ArrayList<>();
          allFiles.addAll(findVideos(localPath));
+        if(databaseHandler.isDbRetrieved()){
+            getDbVideos();
+        }
          customAdapter = new CustomAdapter(this, allFiles, this);
-         customAdapter.setHasStableIds(true);
+         //customAdapter.setHasStableIds(true);
          recyclerView.setAdapter(customAdapter);
-         if(databaseHandler.isDbRetrieved()){
-             getDbVideos();
-         }
     }
 
 
