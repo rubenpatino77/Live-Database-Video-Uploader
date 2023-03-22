@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     @Override
     public void onDeleteClick(File file) {
         loadingDialogue.startLoadingDialogue();
-        boolean fake = false;
         if(file.getAbsolutePath().startsWith(tempDir.getPath())){
             StorageReference fileToDel = storageRef.child(databaseHandler.getDbDirectoryName()).child(file.getName());
             fileToDel.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -272,22 +271,13 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                 } catch (IntentSender.SendIntentException e1) {
                     e1.printStackTrace();
                 }
-
             } finally {
-                while (file.exists()){
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                if(!file.exists()){
+                    displayFiles();
                 }
-                displayFiles();
             }
-
-
             loadingDialogue.dismissLoadingDialogue();
         }
-
     }
 
     public long getFilePathToMediaID(File file, Context context)
@@ -334,11 +324,32 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
         }
-        ((Activity)this).startIntentSenderForResult(pendingIntent.getIntentSender(),
-                10,null,0,
+        Activity result = ((Activity)this);
+
+        result.startIntentSenderForResult(pendingIntent.getIntentSender(),
+                1,null,0,
                 0,0,null);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if (requestCode == 1) {
+                if(resultCode  == RESULT_OK){
+                    Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+                } else if (resultCode == RESULT_CANCELED){
+                    Toast.makeText(this, "Denied", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "idk", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception ex) {
+            Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
+        }
+
+    }
 
     public void getDbVideos() {
         //Downloads videos to 'SDCard/Downloads/tempDir', a temporary directory

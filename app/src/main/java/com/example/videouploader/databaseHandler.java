@@ -42,16 +42,22 @@ public final class databaseHandler {
 
         downloadFrom = storageRef.child(DB_DIRECTORY_NAME);
 
-        Task<ListResult> dbRetrieve = downloadFrom.listAll();
+        Thread longTask = new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        while (!dbRetrieve.isComplete()){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        dbRetrieve.addOnSuccessListener(new OnSuccessListener<ListResult>() {
+
+
+                Task<ListResult> dbRetrieve = downloadFrom.listAll();
+
+                while (!dbRetrieve.isComplete()){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                dbRetrieve.addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
                     public void onSuccess(ListResult listResult) {
                         if (!tempDir.exists()) {
@@ -82,13 +88,31 @@ public final class databaseHandler {
                         dbRetrieved = true;
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // An error occurred!
-                        Toast.makeText(context, "Failed accessing database.", Toast.LENGTH_LONG).show();
-                    }
-                });
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // An error occurred!
+                                Toast.makeText(context, "Failed accessing database.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+
+
+
+
+
+
+
+            }
+        });
+
+        longTask.start();
+        try {
+            longTask.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
