@@ -343,18 +343,15 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
                         displayFiles();
                         loadingDialogue.dismissLoadingDialogue();
                     }
-
                     Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
                 } else if (resultCode == RESULT_CANCELED){
                     Toast.makeText(this, "Denied", Toast.LENGTH_SHORT).show();
+                    loadingDialogue.dismissLoadingDialogue();
                 }
-            } else {
-                Toast.makeText(this, "idk", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception ex) {
             Toast.makeText(this, ex.toString(), Toast.LENGTH_SHORT).show();
         }
-
     }
 
     public void getDbVideos() {

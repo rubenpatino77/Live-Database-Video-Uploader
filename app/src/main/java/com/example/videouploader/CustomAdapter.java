@@ -53,24 +53,33 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         holder.txtName.setText(fileList.get(position).getName());
         holder.txtName.setSelected(true);
 
+        File file = fileList.get(position);
         String filePath = fileList.get(position).getPath();
 
         MediaMetadataRetriever dataRetriever = new MediaMetadataRetriever();
 
-        File checkFile = new File(filePath);
-        while (!checkFile.exists()){
+        boolean fileAvailable = false;
+
+        while (!file.exists() || file.getTotalSpace() == 0){
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.sleep(1000);
+            } catch (InterruptedException x) {
+                x.printStackTrace();
             }
         }
 
-        try {
-            dataRetriever.setDataSource(filePath);
-        } catch (Error e){
-            e.printStackTrace();
-            Toast.makeText(context, "Error: " + e.toString(), Toast.LENGTH_LONG).show();
+        while (!fileAvailable){
+            try {
+                dataRetriever.setDataSource(filePath);
+                fileAvailable = true;
+            } catch (Exception e){
+                e.printStackTrace();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException x) {
+                    x.printStackTrace();
+                }
+            }
         }
 
         String width =
