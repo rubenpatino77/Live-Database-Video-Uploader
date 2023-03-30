@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     private final File tempDir = directoryService.tempDir;
     private HashMap<String, String> dbFileNames = new HashMap<>();
     private LoadingDialogue loadingDialogue;
+    File fileToDelete;
 
 
     @Override
@@ -136,17 +137,18 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
         if(tempDir.getAbsoluteFile().exists()){
             directoryService.deleteDirectory(tempDir);
         }
-         recyclerView = findViewById(R.id.recycler_view);
-         recyclerView.setHasFixedSize(true);
-         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-         allFiles = new ArrayList<>();
-         allFiles.addAll(findVideos(localPath));
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        allFiles = new ArrayList<>();
+        allFiles.addAll(findVideos(localPath));
+        customAdapter = new CustomAdapter(this, allFiles, this);
+        //customAdapter.setHasStableIds(true);
+        recyclerView.setAdapter(customAdapter);
+
         if(databaseHandler.isDbRetrieved()){
             getDbVideos();
         }
-         customAdapter = new CustomAdapter(this, allFiles, this);
-         //customAdapter.setHasStableIds(true);
-         recyclerView.setAdapter(customAdapter);
     }
 
 
@@ -235,48 +237,27 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
     @Override
     public void onDeleteClick(File file) {
         loadingDialogue.startLoadingDialogue();
-        if(file.getAbsolutePath().startsWith(tempDir.getPath())){
-            StorageReference fileToDel = storageRef.child(databaseHandler.getDbDirectoryName()).child(file.getName());
-            fileToDel.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    file.delete();
-                    displayFiles();
-                    loadingDialogue.dismissLoadingDialogue();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    displayFiles();
-                    loadingDialogue.dismissLoadingDialogue();
-                }
-            });
-        } else {
-            //file uri != content uri
-            ///storage/emulated/0/Pictures/image_name.jpg // file uri
-            //content://media/external/image/media/114 // content uri
+        fileToDelete = file;
 
-            long mediaID=getFilePathToMediaID(file,  getApplicationContext());
-            Uri uri = ContentUris.withAppendedId( MediaStore.Video.Media.getContentUri("external"),mediaID);
+        //file uri != content uri
+        ///storage/emulated/0/Pictures/image_name.jpg // file uri
+        //content://media/external/image/media/114 // content uri
 
+        long mediaID=getFilePathToMediaID(file,  getApplicationContext());
+        Uri uri = ContentUris.withAppendedId( MediaStore.Video.Media.getContentUri("external"),mediaID);
+
+        try {
+            deleteAPI30(uri);
+        }catch (Exception e){
+            Toast.makeText(getApplicationContext(),"Permission needed", Toast.LENGTH_SHORT).show();
             try {
                 deleteAPI30(uri);
-            }catch (Exception e){
-                Toast.makeText(getApplicationContext(),"Permission needed", Toast.LENGTH_SHORT).show();
-                try {
-                    deleteAPI30(uri);
-                    file.delete();
-                    displayFiles();
-                    Toast.makeText(getApplicationContext(), "Image Deleted successfully", Toast.LENGTH_SHORT).show();
-                } catch (IntentSender.SendIntentException e1) {
-                    e1.printStackTrace();
-                }
-            } finally {
-                if(!file.exists()){
-                    displayFiles();
-                }
+                file.delete();
+                displayFiles();
+                Toast.makeText(getApplicationContext(), "Image Deleted successfully", Toast.LENGTH_SHORT).show();
+            } catch (IntentSender.SendIntentException e1) {
+                e1.printStackTrace();
             }
-            loadingDialogue.dismissLoadingDialogue();
         }
     }
 
@@ -301,11 +282,14 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                int idIndex = cursor.getColumnIndex(MediaStore.Downloads._ID);
+                int idIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID);
+                int idIndex2 = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
+                String localStoragePath = cursor.getString(idIndex2);
+                String filePath = fileToDelete.getPath().substring(localPath.toString().length());
+
                 id = Long.parseLong(cursor.getString(idIndex));
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                String name = cursor.getString(nameIndex);
-                if(name.equals(file.getName())){
+
+                if(localStoragePath.endsWith(filePath)){
                     break;
                 }
             }
@@ -338,6 +322,28 @@ public class MainActivity extends AppCompatActivity implements SelectListener {
 
             if (requestCode == 1) {
                 if(resultCode  == RESULT_OK){
+
+                    if(fileToDelete.getAbsolutePath().startsWith(tempDir.getPath())){
+                        StorageReference fileToDel = storageRef.child(databaseHandler.getDbDirectoryName()).child(fileToDelete.getName());
+                        fileToDel.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                fileToDel.delete();
+                                displayFiles();
+                                loadingDialogue.dismissLoadingDialogue();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                displayFiles();
+                                loadingDialogue.dismissLoadingDialogue();
+                            }
+                        });
+                    } else {
+                        displayFiles();
+                        loadingDialogue.dismissLoadingDialogue();
+                    }
+
                     Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
                 } else if (resultCode == RESULT_CANCELED){
                     Toast.makeText(this, "Denied", Toast.LENGTH_SHORT).show();

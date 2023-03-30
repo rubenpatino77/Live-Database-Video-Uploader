@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -18,6 +19,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public final class databaseHandler {
 
@@ -82,8 +84,8 @@ public final class databaseHandler {
                                 }
                             });
 
-
                             allFiles.add(tempFile);
+                            customAdapter.notifyItemInserted(allFiles.size() - 1);
                         }
                         dbRetrieved = true;
                     }
@@ -107,12 +109,14 @@ public final class databaseHandler {
         });
 
         longTask.start();
+
         try {
             longTask.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        String test = "idk";
     }
 
 
