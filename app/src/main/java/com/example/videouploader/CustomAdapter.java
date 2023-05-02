@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -43,6 +44,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         return new VideoViewHolder(LayoutInflater.from(context).inflate(R.layout.custom_list, parent,false));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
@@ -62,7 +64,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
 
         while (!file.exists() || file.getTotalSpace() == 0){
             try {
-                Thread.sleep(1000);
+                Thread.sleep(300);
             } catch (InterruptedException x) {
                 x.printStackTrace();
             }
@@ -75,7 +77,7 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             } catch (Exception e){
                 e.printStackTrace();
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(300);
                 } catch (InterruptedException x) {
                     x.printStackTrace();
                 }
@@ -99,6 +101,12 @@ public class CustomAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
+            }
+            try {
+                Thread.sleep(300);
+                thumb = ThumbnailUtils.createVideoThumbnail(new File(fileList.get(position).getAbsolutePath()), mSize, ca);
+            } catch (Exception interruptedException) {
+                interruptedException.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
